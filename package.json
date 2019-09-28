@@ -1,0 +1,25 @@
+{
+  "name": "mcbots",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^2.4.2",
+    "figlet": "^1.2.4",
+    "inquirer": "^7.0.0",
+    "inquirer-command-prompt": "0.0.23",
+    "inquirer-path": "^1.0.0-beta5",
+    "mineflayer": "^2.9.6",
+    "shelljs": "^0.8.3"
+  },
+  "bin": {
+    "mcbots": "./index.js"
+  }
+}
