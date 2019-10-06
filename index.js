@@ -8,11 +8,17 @@ const chalk = require("chalk");
 const figlet = require("figlet");
 const shell = require("shelljs");
 const mineflayer = require("mineflayer");
+const Vec3 = require("vec3").Vec3;
 
 let bots = [];
 let controlling;
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 const init = () => {
+    console.log();
     console.log(
         chalk.rgb(Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255))(
             figlet.textSync("MCBots", {
@@ -44,7 +50,6 @@ const askQuestions = () => {
             message: "Pick a version:",
             type: "list",
             choices: ['1.8.9'],
-            default: 0,
         },
     ];
     return inquirer.prompt(questions);
@@ -102,7 +107,12 @@ const loadBots = async () => {
                             });
                             this.bot.on('kicked', () => {
                                 this.active = false;
-                            })
+                            });
+                            // Of course, this doesn't work...
+                            this.bot._client.on('entity_velocity', v => {
+                                if (this.bot.entity.id !== v.entityId) return;
+                                this.bot.entity.velocity = new Vec3(v.velocityX / 256, v.velocityY / 512 * 1.5, v.velocityZ / 256);
+                            });
                         });
                     }
                 });
@@ -115,6 +125,18 @@ const loadBots = async () => {
     }
 }
 
+const unFloat = () => {
+    if (controlling && controlling.active) {
+        controlling.bot.setControlState('jump', true);
+        controlling.bot.setControlState('jump', false)
+    } else {
+        bots.forEach((account) => {
+            account.bot.setControlState('jump', true)
+            account.bot.setControlState('jump', false)
+        })
+    }
+}
+
 const registerBotEvents = () => {
     bots.forEach((account) => {
         account.registerEvents();
@@ -124,7 +146,6 @@ const registerBotEvents = () => {
 
 const endBot = (user) => {
     user = user.trim();
-    console.log(user);
     for (let account of bots) {
         if (user !== "" && !user.includes(" ")) {
             if (user === account.bot.username) {
@@ -175,7 +196,7 @@ const cmd = () => {
         name: 'cmd',
         prefix: '',
         message: '>',
-        autoCompletion: ['loadbots', 'status', 'chat', 'control', 'registerBotEvents', 'endbot', 'quit'],
+        autoCompletion: ['loadbots', 'status', 'chat', 'control', 'registerBotEvents', 'endbot', 'quit', 'unfloat'],
         context: 0,
         short: false
     }]).then(answers => {
@@ -201,19 +222,22 @@ const run = async () => {
                 await loadBots();
                 break;
             case "status":
-                await status();
+                status();
                 break;
             case "control":
-                await control(response);
+                control(response);
                 break;
             case "chat":
-                await chat(response.substr(5));
+                chat(response.substr(5));
                 break;
             case "registerbotevents":
-                await registerBotEvents();
+                registerBotEvents();
                 break;
             case "endbot":
-                await endBot(response.substr(7));
+                endBot(response.substr(7));
+                break;
+            case "unfloat":
+                unFloat();
                 break;
             case "quit":
             case "exit":
