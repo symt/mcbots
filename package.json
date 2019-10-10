@@ -16,6 +16,7 @@
     "inquirer": "^7.0.0",
     "inquirer-command-prompt": "0.0.23",
     "inquirer-path": "^1.0.0-beta5",
+    "keypress": "^0.2.1",
     "mineflayer": "^2.9.6",
     "shelljs": "^0.8.3"
   },
