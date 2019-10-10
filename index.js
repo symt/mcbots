@@ -30,11 +30,16 @@ process.stdin.on('keypress', function (ch, key) {
     };
     if (key) {
         if (key.name === 'enter' || key.name === 'return') {
+            queue.push(currentInput);
             currentInput = "";
         } else if (key.name === 'backspace') {
             if (currentInput.length != 0)
                 currentInput = currentInput.slice(0, -1);
-        } else if (key.name !== 'tab') {
+        } else if (key.name === 'up') {
+            //currentInput = queue[queue.length - --index];
+        } else if (key.name === 'down') {
+            //currentInput = queue[queue.length - ++index];
+        } else if (key.name !== 'tab' && key.name !== 'left' && key.name !== 'right') {
             currentInput += ch;
         } else {
             const autocompleteTab = currentInput.split(" ");
@@ -193,8 +198,10 @@ const togglechat = (user) => {
                     chatToggled = true;
                 } else if (chatToggled && !account.chatEnabled) {
                     console.log(chalk.red('Chat is already toggled.'));
+                    return;
                 } else if (chatToggled && account.chatEnabled) {
                     console.log(chalk.red('Chat is already toggled for ') + chalk.gray(account.bot.username) + chalk.red('.'));
+                    return;
                 }
                 foundUser = true;
                 break;
@@ -212,11 +219,14 @@ const endBot = (user) => {
     user = user.trim();
     for (let account of bots) {
         if (user !== "" && !user.includes(" ")) {
-            if (user === account.bot.username) {
+            if (user.toLowerCase() === account.bot.username.toLowerCase()) {
                 if (controlling && controlling === account) {
                     controlling = undefined;
                 }
-                chatToggled = false;
+                if (account.chatEnabled) {
+                    chatToggled = false;
+                    account.chatEnabled = false;
+                }
                 account.bot.end();
                 account.active = false;
                 break;
